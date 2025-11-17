@@ -1,6 +1,6 @@
 export const links = {
-  loginLink: "https://platform.growchief.com/auth/login",
-  getStarted: "https://platform.growchief.com/auth/register",
+  loginLink: "/auth/login",
+  getStarted: "/auth/register",
 
   // socials
   twitter: "https://x.com/getpostiz",
