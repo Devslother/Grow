@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Divider } from "@/components/blog/ui";
+import { Divider } from "@/components/docs/ui";
 import { ListNavItem } from "@/components/docs/ListNavItem";
 import { DocsNavigation } from "@/components/docs/DocsNavigation";
 import { DOCS_NAV_ITEMS } from "@/lib/data";

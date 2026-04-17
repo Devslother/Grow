@@ -1,8 +1,5 @@
-export { CopyableCode } from "../../docs/ui/CopyableCode.server";
 export { Divider } from "./Divider";
 export { H2 } from "./H2";
 export { H3 } from "./H3";
-export { Image } from "./Image";
-export { List, Item } from "./List";
 export { P } from "./P";
-export { Table } from "./Table";
+export { Image, List, Item, Table } from "@/components/shared/mdx";

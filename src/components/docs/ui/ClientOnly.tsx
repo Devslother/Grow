@@ -1,4 +1,4 @@
-// src/components/blog/ui/ClientOnly.tsx
+// src/components/docs/ui/ClientOnly.tsx
 "use client";
 
 import type { ReactNode } from "react";

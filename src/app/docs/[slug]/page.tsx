@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { DocsMdxLoader } from "@/components/blog/MdxLoader";
 import { DocsNavigation } from "@/components/docs/DocsNavigation";
 import { ListNavItem } from "@/components/docs/ListNavItem";
-import { Divider } from "@/components/blog/ui";
+import { Divider } from "@/components/docs/ui";
 import { ExternalLinksHandler } from "@/components/docs/ExternalLinksHandler";
 import { DOCS_NAV_ITEMS } from "@/lib/data";
 

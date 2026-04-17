@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import type { NextAuthOptions } from "next-auth";
 
+const ALLOWED_EXTERNAL_REDIRECT_URL = "https://postiz.com/agent";
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   secret: process.env.NEXTAUTH_SECRET,
@@ -83,7 +85,7 @@ export const authOptions: NextAuthOptions = {
           // 2. Check password
           const valid = await bcrypt.compare(
             credentials.password,
-            user.password
+            user.password,
           );
 
           if (!valid) {
@@ -125,6 +127,29 @@ export const authOptions: NextAuthOptions = {
         return false;
       }
       return true;
+    },
+
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) {
+        return `${baseUrl}${url}`;
+      }
+
+      if (url === ALLOWED_EXTERNAL_REDIRECT_URL) {
+        return url;
+      }
+
+      try {
+        const targetUrl = new URL(url);
+        const appUrl = new URL(baseUrl);
+
+        if (targetUrl.origin === appUrl.origin) {
+          return url;
+        }
+      } catch {
+        return baseUrl;
+      }
+
+      return baseUrl;
     },
   },
 

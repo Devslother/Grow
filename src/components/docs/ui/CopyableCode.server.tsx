@@ -1,4 +1,4 @@
-// src/components/blog/ui/CopyableCode.server.tsx
+// src/components/docs/ui/CopyableCode.server.tsx
 import type { ReactNode } from "react";
 import { ClientOnly } from "./ClientOnly";
 import { CopyableCode as CopyableCodeClient } from "./CopyableCode";

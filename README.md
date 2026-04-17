@@ -54,8 +54,8 @@ Frontend Developer (Junior-level)
 - **Modern Tech Stack**: Next.js with App Router, React, TypeScript
 - **Documentation System**: Full-featured docs with search, navigation, and MDX support
 - **Blog Platform**: Dynamic blog with author profiles, related posts, and social sharing
-- **Authentication**: Secure user authentication with NextAuth.js and Prisma
-- **Responsive Design**: Mobile-first approach with Tailwind CSS
+- **Authentication**: NextAuth.js + Prisma auth flow with login/register/Google/reset and post-login redirect to Postiz Agent
+- **Responsive Design**: Mobile-first approach with Tailwind CSS 4
 - **MDX Support**: Rich content authoring with MDX
 - **SEO Optimized**: Meta tags, structured data, and optimized performance
 
@@ -182,8 +182,9 @@ The project uses NextAuth.js with Prisma adapter for authentication. Supported f
 
 - Email/password registration and login
 - Password reset functionality
-- Session management
-- Protected routes
+- Google OAuth sign-in
+- Redirect to external Postiz Agent after successful login
+- Internal protected routes are intentionally out of scope for this repository
 
 ## Deployment
 

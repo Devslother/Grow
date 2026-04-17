@@ -5,7 +5,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import GoogleLogo from "@/public/icons/Googlelogo.svg";
+import { registerUser } from "@/lib/api/auth-client";
 import { AuthInput } from "../ui/AuthInput";
+
+const POST_LOGIN_REDIRECT_URL = "https://postiz.com/agent";
 
 export default function RegisterForm() {
   const [email, setEmail] = useState("");
@@ -56,49 +59,37 @@ export default function RegisterForm() {
 
     if (!isValid) return;
 
-    // User registration
-    try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, companyName }),
-      });
+    const registerResult = await registerUser({ email, password, companyName });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        if (res.status === 409) {
-          setEmailError("User with this email already exists");
-        } else {
-          setPassError(data.error || "Something went wrong. Please try again.");
-        }
-        return;
-      }
-
-      // If everything successful → automatically log in user
-      const signInRes = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
-
-      if (signInRes?.error) {
-        // If auto-login failed, show successful registration message
-        setSubmitted(true);
+    if (!registerResult.ok) {
+      if (registerResult.status === 409) {
+        setEmailError("User with this email already exists");
       } else {
-        // If auto-login successful → redirect to home
-        window.location.href = "/";
+        setPassError(registerResult.error);
       }
-    } catch (error) {
-      console.error("Registration error:", error);
-      setPassError("Something went wrong. Please try again.");
+      return;
+    }
+
+    // If everything successful → automatically log in user
+    const signInRes = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (signInRes?.error) {
+      // If auto-login failed, show successful registration message
+      setSubmitted(true);
+    } else {
+      // If auto-login successful → redirect to external agent
+      window.location.href = POST_LOGIN_REDIRECT_URL;
     }
   };
 
   const handleGoogleSignIn = () => {
     // "google" provider will be in next-auth config
     signIn("google", {
-      callbackUrl: "/", // or "/dashboard"
+      callbackUrl: POST_LOGIN_REDIRECT_URL,
     });
   };
 

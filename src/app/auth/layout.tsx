@@ -1,6 +1,7 @@
 // src/app/auth/layout.tsx
-import { SessionProvider } from "@/components/providers/SessionProvider";
-export const metadata = {
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
   title: "Auth — GrowChief",
   description: "Login and registration",
 };
@@ -11,10 +12,8 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SessionProvider>
-      <div className="min-h-screen flex items-center justify-center">
-        {children}
-      </div>
-    </SessionProvider>
+    <div className="min-h-screen flex items-center justify-center">
+      {children}
+    </div>
   );
 }

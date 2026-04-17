@@ -7,6 +7,8 @@ import { signIn } from "next-auth/react";
 import GoogleLogo from "@/public/icons/Googlelogo.svg";
 import { AuthInput } from "../ui/AuthInput";
 
+const POST_LOGIN_REDIRECT_URL = "https://postiz.com/agent";
+
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -49,12 +51,12 @@ export default function LoginForm() {
     }
 
     // If authentication successful → redirect manually
-    window.location.href = "/";
+    window.location.href = POST_LOGIN_REDIRECT_URL;
   };
 
   const handleGoogleSignIn = () => {
     signIn("google", {
-      callbackUrl: "/",
+      callbackUrl: POST_LOGIN_REDIRECT_URL,
     });
   };
 
