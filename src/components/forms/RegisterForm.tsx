@@ -6,6 +6,7 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 import GoogleLogo from "@/public/icons/Googlelogo.svg";
 import { registerUser } from "@/lib/api/auth-client";
+import { AUTH_DEMO_MESSAGES, isAuthDemoMode } from "@/lib/auth-demo";
 import { AuthInput } from "../ui/AuthInput";
 
 const POST_LOGIN_REDIRECT_URL = "https://postiz.com/agent";
@@ -20,12 +21,14 @@ export default function RegisterForm() {
   const [passError, setPassError] = useState("");
   const [confirmPassError, setConfirmPassError] = useState("");
   const [companyNameError, setCompanyNameError] = useState("");
+  const [demoNotice, setDemoNotice] = useState("");
 
   // whether to show "email sent" screen
   const [submitted, setSubmitted] = useState(false);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setDemoNotice("");
 
     let isValid = true;
 
@@ -59,38 +62,68 @@ export default function RegisterForm() {
 
     if (!isValid) return;
 
-    const registerResult = await registerUser({ email, password, companyName });
-
-    if (!registerResult.ok) {
-      if (registerResult.status === 409) {
-        setEmailError("User with this email already exists");
-      } else {
-        setPassError(registerResult.error);
-      }
+    if (isAuthDemoMode) {
+      setEmailError("");
+      setPassError("");
+      setConfirmPassError("");
+      setCompanyNameError("");
+      setDemoNotice(AUTH_DEMO_MESSAGES.signUp);
       return;
     }
 
-    // If everything successful → automatically log in user
-    const signInRes = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    try {
+      const registerResult = await registerUser({ email, password, companyName });
 
-    if (signInRes?.error) {
-      // If auto-login failed, show successful registration message
-      setSubmitted(true);
-    } else {
-      // If auto-login successful → redirect to external agent
-      window.location.href = POST_LOGIN_REDIRECT_URL;
+      if (!registerResult.ok) {
+        if (registerResult.status === 409) {
+          setEmailError("User with this email already exists");
+        } else {
+          setPassError(registerResult.error);
+        }
+        return;
+      }
+
+      // If everything successful -> automatically log in user
+      const signInRes = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (signInRes?.error) {
+        // If auto-login failed, show successful registration message
+        setSubmitted(true);
+      } else {
+        // If auto-login successful -> redirect to external agent
+        window.location.href = POST_LOGIN_REDIRECT_URL;
+      }
+    } catch (error) {
+      console.error("Registration flow failed:", error);
+      setPassError("Something went wrong. Please try again.");
     }
   };
 
-  const handleGoogleSignIn = () => {
-    // "google" provider will be in next-auth config
-    signIn("google", {
-      callbackUrl: POST_LOGIN_REDIRECT_URL,
-    });
+  const handleGoogleSignIn = async () => {
+    setDemoNotice("");
+
+    if (isAuthDemoMode) {
+      setEmailError("");
+      setPassError("");
+      setConfirmPassError("");
+      setCompanyNameError("");
+      setDemoNotice(AUTH_DEMO_MESSAGES.google);
+      return;
+    }
+
+    try {
+      // "google" provider will be in next-auth config
+      await signIn("google", {
+        callbackUrl: POST_LOGIN_REDIRECT_URL,
+      });
+    } catch (error) {
+      console.error("Google sign-in failed:", error);
+      setPassError("Something went wrong. Please try again.");
+    }
   };
 
   return (
@@ -108,6 +141,12 @@ export default function RegisterForm() {
             </span>
           </button>
 
+          {demoNotice && (
+            <p className="rounded-md border border-[#3A3A3A] bg-[#222222] px-3 py-2 text-xs font-sans-serif font-bold text-gray-300">
+              {demoNotice}
+            </p>
+          )}
+
           <AuthInput
             label="Email"
             type="email"
@@ -115,6 +154,7 @@ export default function RegisterForm() {
             onChange={(e) => {
               setEmail(e.target.value);
               setEmailError(""); // clear error
+              setDemoNotice("");
             }}
             error={emailError}
             placeholder="m@example.com"
@@ -127,6 +167,7 @@ export default function RegisterForm() {
             onChange={(e) => {
               setPassword(e.target.value);
               setPassError(""); // clear error
+              setDemoNotice("");
             }}
             error={passError}
           />
@@ -138,6 +179,7 @@ export default function RegisterForm() {
             onChange={(e) => {
               setConfirmPassword(e.target.value);
               setConfirmPassError(""); // clear error
+              setDemoNotice("");
             }}
             error={confirmPassError}
           />
@@ -149,6 +191,7 @@ export default function RegisterForm() {
             onChange={(e) => {
               setCompanyName(e.target.value);
               setCompanyNameError(""); // clear error
+              setDemoNotice("");
             }}
             error={companyNameError}
             placeholder="Your company name"

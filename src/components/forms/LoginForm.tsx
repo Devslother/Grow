@@ -5,6 +5,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import GoogleLogo from "@/public/icons/Googlelogo.svg";
+import { AUTH_DEMO_MESSAGES, isAuthDemoMode } from "@/lib/auth-demo";
 import { AuthInput } from "../ui/AuthInput";
 
 const POST_LOGIN_REDIRECT_URL = "https://postiz.com/agent";
@@ -15,9 +16,11 @@ export default function LoginForm() {
 
   const [emailError, setEmailError] = useState("");
   const [passError, setPassError] = useState("");
+  const [demoNotice, setDemoNotice] = useState("");
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setDemoNotice("");
 
     let isValid = true;
 
@@ -37,27 +40,53 @@ export default function LoginForm() {
 
     if (!isValid) return;
 
-    // Controlled NextAuth authentication without auto-redirect
-    const res = await signIn("credentials", {
-      email,
-      password,
-      redirect: false, // important parameter
-    });
-
-    // If error from next-auth → show it in UI
-    if (res?.error) {
-      setPassError("Invalid email or password");
+    if (isAuthDemoMode) {
+      setEmailError("");
+      setPassError("");
+      setDemoNotice(AUTH_DEMO_MESSAGES.signIn);
       return;
     }
 
-    // If authentication successful → redirect manually
-    window.location.href = POST_LOGIN_REDIRECT_URL;
+    try {
+      // Controlled NextAuth authentication without auto-redirect
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      // If error from next-auth -> show it in UI
+      if (res?.error) {
+        setPassError("Invalid email or password");
+        return;
+      }
+
+      // If authentication successful -> redirect manually
+      window.location.href = POST_LOGIN_REDIRECT_URL;
+    } catch (error) {
+      console.error("Login request failed:", error);
+      setPassError("Something went wrong. Please try again.");
+    }
   };
 
-  const handleGoogleSignIn = () => {
-    signIn("google", {
-      callbackUrl: POST_LOGIN_REDIRECT_URL,
-    });
+  const handleGoogleSignIn = async () => {
+    setDemoNotice("");
+
+    if (isAuthDemoMode) {
+      setEmailError("");
+      setPassError("");
+      setDemoNotice(AUTH_DEMO_MESSAGES.google);
+      return;
+    }
+
+    try {
+      await signIn("google", {
+        callbackUrl: POST_LOGIN_REDIRECT_URL,
+      });
+    } catch (error) {
+      console.error("Google sign-in failed:", error);
+      setPassError("Something went wrong. Please try again.");
+    }
   };
 
   return (
@@ -73,6 +102,12 @@ export default function LoginForm() {
         </span>
       </button>
 
+      {demoNotice && (
+        <p className="rounded-md border border-[#3A3A3A] bg-[#222222] px-3 py-2 text-xs font-sans-serif font-bold text-gray-300">
+          {demoNotice}
+        </p>
+      )}
+
       <AuthInput
         label="Email"
         type="email"
@@ -80,6 +115,7 @@ export default function LoginForm() {
         onChange={(e) => {
           setEmail(e.target.value);
           setEmailError(""); // clear error
+          setDemoNotice("");
         }}
         error={emailError}
         placeholder="m@example.com"
@@ -104,6 +140,7 @@ export default function LoginForm() {
           onChange={(e) => {
             setPassword(e.target.value);
             setPassError(""); // clear error
+            setDemoNotice("");
           }}
           error={passError}
         />

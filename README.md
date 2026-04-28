@@ -54,7 +54,7 @@ Frontend Developer (Junior-level)
 - **Modern Tech Stack**: Next.js with App Router, React, TypeScript
 - **Documentation System**: Full-featured docs with search, navigation, and MDX support
 - **Blog Platform**: Dynamic blog with author profiles, related posts, and social sharing
-- **Authentication**: NextAuth.js + Prisma auth flow with login/register/Google/reset and post-login redirect to Postiz Agent
+- **Authentication (Demo Mode in Public Repo)**: Public auth flows are preserved with safe mock responses instead of live backend actions
 - **Responsive Design**: Mobile-first approach with Tailwind CSS 4
 - **MDX Support**: Rich content authoring with MDX
 - **SEO Optimized**: Meta tags, structured data, and optimized performance
@@ -66,8 +66,8 @@ Frontend Developer (Junior-level)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS (CSS-first configuration)
 - **Content**: MDX
-- **Authentication**: NextAuth.js + Prisma
-- **Database**: PostgreSQL
+- **Authentication**: NextAuth.js (+ demo-mode fallback in public version)
+- **Database**: PostgreSQL (private production setup)
 - **Animations**: GSAP, Framer Motion
 - **Forms**: React Hook Form + Zod
 
@@ -107,9 +107,13 @@ RESEND_API_KEY="your-resend-api-key"
 
 # Optional
 NEXT_PUBLIC_SITE_URL="https://your-domain.com"
+NEXT_PUBLIC_AUTH_DEMO_MODE="true"
 ```
 
-4. Set up the database:
+`NEXT_PUBLIC_AUTH_DEMO_MODE=true` is recommended for the public portfolio version.  
+When enabled, authentication flows use safe mock responses and do not require private database or email infrastructure.
+
+4. If you want to run the full authentication flow locally, set up the database:
 
 ```bash
 npx prisma generate
@@ -178,13 +182,16 @@ Blog posts are in `src/components/content/blog/` as MDX files with frontmatter. 
 
 ## Authentication
 
-The project uses NextAuth.js with Prisma adapter for authentication. Supported features:
+The project uses NextAuth.js with the Prisma adapter for authentication.
 
-- Email/password registration and login
-- Password reset functionality
-- Google OAuth sign-in
-- Redirect to external Postiz Agent after successful login
-- Internal protected routes are intentionally out of scope for this repository
+In the public repository, authentication is presented in demo mode:
+
+- Sign in, Sign up, Google auth, and Forgot password preserve the intended UX
+- Actions return clear demo responses instead of server errors
+- Private backend infrastructure, database access, and email delivery are not included in this repository
+
+This repository is a public portfolio version of a commercial-style project.  
+The original implementation depends on private infrastructure, so backend-dependent authentication actions are intentionally mocked here to keep the user experience consistent.
 
 ## Deployment
 
@@ -200,16 +207,12 @@ The build process includes:
 - Next.js build
 - Prisma engine copy for Netlify deployment
 
-### Deploy to Vercel
-
-1. Push your code to GitHub
-2. Import the repository in Vercel
-3. Add environment variables
-4. Deploy
-
 ### Deploy to Netlify
 
-The project includes a script to copy the Prisma engine for Netlify's Linux environment.
+1. Push your code to GitHub
+2. Import the repository into Netlify
+3. Add environment variables
+4. Deploy
 
 ## Learn More
 
@@ -223,5 +226,3 @@ The project includes a script to copy the Prisma engine for Netlify's Linux envi
 This repository is provided for demonstration and portfolio purposes.
 
 ---
-
-Built by GrowChief (personal portfolio project)

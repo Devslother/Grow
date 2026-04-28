@@ -2,6 +2,7 @@
 
 import { AuthInput } from "@/components/ui/AuthInput";
 import { AuthLogoEye } from "@/components/ui/AuthLogoEye";
+import { AUTH_DEMO_MESSAGES, isAuthDemoMode } from "@/lib/auth-demo";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -9,10 +10,8 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
 
-  // whether to show "email sent" screen
+  // whether to show the post-submit state
   const [submitted, setSubmitted] = useState(false);
-  // whether to show top banner
-  const [showBanner, setShowBanner] = useState(false);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,12 +19,17 @@ export default function ForgotPasswordPage() {
     let isValid = true;
 
     if (!email.includes("@")) {
-      setEmailError("email must be an email");
+      setEmailError("Please enter a valid email address");
       isValid = false;
     } else {
       setEmailError("");
     }
     if (!isValid) return;
+
+    if (isAuthDemoMode) {
+      setSubmitted(true);
+      return;
+    }
 
     try {
       const response = await fetch("/api/auth/forgot-password", {
@@ -44,13 +48,8 @@ export default function ForgotPasswordPage() {
       }
 
       setSubmitted(true); // switch content
-      setShowBanner(true); // show banner
-
-      setTimeout(() => {
-        setShowBanner(false);
-      }, 4000); // remove banner after 4 sec
     } catch (error) {
-      console.error("❌ Forgot password error:", error);
+      console.error("Forgot password error:", error);
       setEmailError("Something went wrong. Please try again.");
     }
   };
@@ -63,28 +62,6 @@ export default function ForgotPasswordPage() {
 
   return (
     <main className="w-full px-4 flex flex-col items-center">
-      {showBanner && (
-        <div className="my-10 flex items-center gap-3 w-full max-w-[500px] rounded-md bg-gray-600 p-4 text-base font-sans-serif font-bold text-white">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-5 h-5"
-            viewBox="0 0 24 24"
-          >
-            <circle cx="12" cy="12" r="10" fill="#26a764" />
-            <path
-              d="M16.5 9l-6.7 6.7L7.5 13.4"
-              stroke="white"
-              strokeWidth="2"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-
-          <span>Check your inbox for password reset instructions.</span>
-        </div>
-      )}
-
       <div className="mx-auto w-[500px] bg-[#1A1A1A] rounded-[12px] shadow-[0_20px_50px_rgba(0,0,0,0.55)] p-[30px] flex flex-col gap-6">
         <AuthLogoEye />
         <h1 className="font-sans-serif text-2xl font-bold text-center text-secondary-purple">
@@ -124,11 +101,14 @@ export default function ForgotPasswordPage() {
         {submitted && (
           <div className="flex flex-col p-6 gap-4 border-[1px] border-[#3A3A3A] rounded-[12px]">
             <h2 className="font-sans-serif text-lg font-bold">
-              Check your email
+              {isAuthDemoMode
+                ? "Password reset unavailable in demo"
+                : "Check your email"}
             </h2>
             <p className="font-sans-serif text-sm text-gray-400 font-bold">
-              We&apos;ve sent you a password reset link. Please check your
-              inbox.
+              {isAuthDemoMode
+                ? AUTH_DEMO_MESSAGES.forgotPassword
+                : "We've sent you a password reset link. Please check your inbox."}
             </p>
 
             <button

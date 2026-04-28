@@ -67,7 +67,9 @@ const nextConfig: NextConfig = {
     if (config.cache && typeof config.cache === "object") {
       config.cache.buildDependencies = {
         ...config.cache.buildDependencies,
-        config: [__filename],
+        // Keep a stable path for cache invalidation in App Router + TS config.
+        // __filename may point to transient next.config.compiled.js.
+        config: [join(process.cwd(), "next.config.ts")],
       };
     }
 

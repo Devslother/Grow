@@ -22,7 +22,7 @@ export const AuthLogoEye = () => {
           />
         </div>
       </div>
-      <h2 className="font-sans-serif text-2xl font-bold">Grow</h2>
+      <h2 className="font-sans-serif text-2xl font-bold">GrowChief</h2>
     </div>
   );
 };
